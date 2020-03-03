@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from "react";
+import React, {useState} from "react";
 import {nextActiveQuest, toggleAnswer} from "../shared/service";
 
 type CommandsListProps = {
@@ -7,21 +7,27 @@ type CommandsListProps = {
 
 type CommandProps = {
     name: string;
+    points?: number;
 }
 
 function Command(props: CommandProps) {
-    const [name, setName] = useState<any>(props.name || '');
+    const [points, setPoints] = useState<any>(props.points || 0);
+
+    const changePoints = (points: number) => {
+       if (points >= 0) {
+           setPoints(points);
+       }
+    };
 
     return (
         <li>
-            <div>{ name }</div>
-            <label>Название команды <input type="text"
-                                           value={ name }
-                                           onChange={ (e: ChangeEvent<HTMLInputElement>) => {
-                                               setName(e.target.value)
-                                           } }/>
-            </label>
-            <label>Очки команды <input type="number" min="0"/></label>
+            <div>{ props.name }</div>
+            <div>
+                Очки команды:
+                <strong>{points}</strong>
+                <button onClick={ () => {const i = points + 1; changePoints(i);} }>+</button>
+                <button onClick={ () => {const i = points - 1; changePoints(i);} }>-</button>
+            </div>
         </li>
     );
 }
