@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {getCurrentQuest} from '../shared/service';
+import {getCurrentQuest, getTeamObserver} from '../shared/service';
 
 /*
 * Основной экран который видят игроки на проекторе
@@ -14,16 +14,20 @@ function getLoader(): any {
 
 export function Game() {
     const [quest, setQuest] = useState<any>(null);
-    const [questNumber, setQuestNumber] = useState<number>(0);
+    const [teams, setTeams] = useState<any>(null);
 
     useEffect(() => {
-        const sub = getCurrentQuest(questNumber).subscribe((res) => {
+        const sub = getCurrentQuest().subscribe((res) => {
             setQuest(res);
         });
+        const teamSub = getTeamObserver().subscribe((teams) => {
+            setTeams(teams)
+        });
         return () => {
-            sub.unsubscribe()
+            sub.unsubscribe();
+            teamSub.unsubscribe();
         }
-    });
+    }, []);
 
     return <div>
         { quest ?
@@ -45,5 +49,7 @@ export function Game() {
             </div>
             : getLoader()
         }
+        { teams ? teams.map((team: any, key: number) => <div
+            key={ key }>{ team.name } - { team.score } баллов</div>) : <></> }
     </div>;
 }

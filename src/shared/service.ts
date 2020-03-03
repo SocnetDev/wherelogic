@@ -2,17 +2,19 @@ import {quests, storage, firestore} from "../firebase";
 import {Subject} from 'rxjs';
 
 const activeDoc = firestore.collection('active').doc('quest');
+const teamCollection = firestore.collection('teams');
 let unsubscribe: Function;
 const res = new Subject<any>();
+const team$ = new Subject<any>();
 let currentQuest: any;
 let allQuests: any[];
 
-export function getCurrentQuest(id: number = 0): Subject<any> {
+export function getCurrentQuest(): Subject<any> {
     if (unsubscribe) {
         unsubscribe();
     }
     unsubscribe = firestore.collection('active').onSnapshot((snapshot) => {
-        const firstDoc = snapshot.docs[id];
+        const firstDoc = snapshot.docs[0];
         if (firstDoc) {
             storage.child(`${ firstDoc.data().id }/`).listAll().then((arr) => {
                 Promise.all(arr.items.map(elem => elem.getDownloadURL())).then((files) => {
@@ -49,6 +51,39 @@ export function nextActiveQuest(id: number): void {
 
 export function toggleAnswer(show: boolean) {
     activeDoc.update({showAnswer: show});
+}
+
+export function createTeam(name: string): Promise<any> {
+    return teamCollection.add({
+        name, score: 0
+    });
+}
+
+export function updateTeam(team: string, name: string) {
+    teamCollection.doc(team).update({name});
+}
+
+export function changeScore(team: string, score: number) {
+    const curTeam = teamCollection.doc(team);
+    curTeam.get().then((team) => {
+        const oldScore = team.data()?.score || 0;
+        curTeam.update({score: oldScore + score});
+    });
+}
+
+export function getTeamObserver(): Subject<any> {
+    teamCollection.onSnapshot((teams) => {
+        team$.next(teams.docs.map(team => team.data()));
+    });
+    return team$;
+}
+
+export function removeAllTeam() {
+    teamCollection.get().then(({docs}) => {
+        docs.forEach((team) => {
+            teamCollection.doc(team.id).delete();
+        });
+    })
 }
 
 function getAllQuests(): Promise<any> {
