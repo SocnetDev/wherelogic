@@ -1,4 +1,5 @@
 import React, {ChangeEvent, useState} from "react";
+import {nextActiveQuest} from "../shared/service";
 
 type CommandsListProps = {
     count: number;
@@ -34,11 +35,17 @@ function CommandsList(props: CommandsListProps) {
 }
 
 export function Admin() {
+    let index = 0;
     // Начальный экран ведущего
     return (
         <div>
             <h2>Настройки текущей игры</h2>
-            <CommandsList count={3} />
+            <CommandsList count={3}/>
+            <button onClick={ () => {
+                nextActiveQuest(index);
+                index++;
+            } }>Следующий вопрос
+            </button>
         </div>
     );
 }

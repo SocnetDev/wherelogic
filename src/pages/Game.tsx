@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {quests, storage} from "./../firebase";
+import {getCurrentQuest} from '../shared/service';
 
 /*
 * Основной экран который видят игроки на проекторе
@@ -8,49 +8,39 @@ import {quests, storage} from "./../firebase";
 * когда команды будут кликать мы выводим на экран список со временем - профит
 *
 * */
-
+function getLoader(): any {
+    return <div>Загрузка...</div>;
+}
 
 export function Game() {
     const [quest, setQuest] = useState<any>(null);
-    const [photo, setPhoto] = useState<any>([]);
     const [questNumber, setQuestNumber] = useState<number>(0);
 
     useEffect(() => {
-        let unsubscribe = quests.onSnapshot((snapshot) => {
-            const firstDoc = snapshot.docs[questNumber];
-            if (firstDoc) {
-                setQuest(firstDoc);
-                storage.child(`${ firstDoc.data().id }/`).listAll().then((arr) => {
-                    Promise.all(arr.items.map(elem => elem.getDownloadURL())).then((files) => {
-                        setPhoto(files);
-                    })
-                });
-            }
+        const sub = getCurrentQuest(questNumber).subscribe((res) => {
+            setQuest(res);
         });
-        return () => unsubscribe();
-    }, [questNumber]);
-
-    const addTestAnswer = (): void => {
-        quests.doc(quest.id).update({
-            answers: [...quest.data().answers, {name: `Name`, time: new Date().toLocaleTimeString()}]
-        });
-    }
-
-    const clearAnswers = () => {
-        quests.doc(quest.id).update({
-            answers: []
-        });
-    }
+        return () => {
+            sub.unsubscribe()
+        }
+    }, []);
 
     return <div>
         { quest ?
-            <div>
-                <div>{ quest.data().text }</div>
-                <div>{ quest.data().answers?.map((el: any) => <div>{ el.name + ' ' + el.time }</div>) }</div>
-                { photo.map((elem: string, key: number) => <img src={ elem } alt={ 'Quest' } key={ key }/>) }
-            </div> : <div>Загрузка...</div> }
-        <button onClick={ () => setQuestNumber(questNumber ? 0 : 1) }>Переключить опрос</button>
-        <button onClick={ () => addTestAnswer() }>Добавить ответ</button>
-        <button onClick={ () => clearAnswers() }>Очистить ответы</button>
+            <div className="quest">
+                <div className="quest-game flex-column-center">
+                    <h1>{ quest.text || 'Где логика?' }</h1>
+                    <div className="quest-game-images">{ quest.images.map((elem: string, key: number) => <img
+                        src={ elem } alt={ 'Quest' }
+                        key={ key }/>) }</div>
+                </div>
+                <div className='quest-answers flex-column-center'>
+                    <h2>Порядок ответов:</h2>
+                    { quest.answers?.map((el: any, key: number) => <div
+                        key={ key }>{ el.name + ' ' + el.time }</div>) }
+                </div>
+            </div>
+            : getLoader()
+        }
     </div>;
 }

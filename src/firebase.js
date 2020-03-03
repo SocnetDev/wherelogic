@@ -9,5 +9,6 @@ const config = {
    appId: "1:212321058825:web:0a80064ece6fae8b51f8d8"
 }
 firebase.initializeApp(config);
-export const quests = firebase.firestore().collection('testQ');
+export const firestore = firebase.firestore();
+export const quests = firestore.collection('testQ');
 export const storage = firebase.storage().ref();
