@@ -18,4 +18,4 @@ jobs:
       uses: lowply/deploy-firebase@v0.0.2
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE }}
-        FIREBASE_PROJECT: where-logic
+        FIREBASE_PROJECT: Where-logic
