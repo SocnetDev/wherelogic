@@ -23,11 +23,14 @@ export function Game() {
         return () => {
             sub.unsubscribe()
         }
-    }, []);
+    });
 
     return <div>
         { quest ?
             <div className="quest">
+                { quest.showAnswer ? <div>
+                    Правильный ответ: { quest.rightAnswer }
+                </div> : <></> }
                 <div className="quest-game flex-column-center">
                     <h1>{ quest.text || 'Где логика?' }</h1>
                     <div className="quest-game-images">{ quest.images.map((elem: string, key: number) => <img

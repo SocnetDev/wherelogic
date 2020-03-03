@@ -47,6 +47,10 @@ export function nextActiveQuest(id: number): void {
     });
 }
 
+export function toggleAnswer(show: boolean) {
+    activeDoc.update({showAnswer: show});
+}
+
 function getAllQuests(): Promise<any> {
     if (allQuests) {
         return Promise.resolve(allQuests);

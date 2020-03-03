@@ -1,5 +1,5 @@
 import React, {ChangeEvent, useState} from "react";
-import {nextActiveQuest} from "../shared/service";
+import {nextActiveQuest, toggleAnswer} from "../shared/service";
 
 type CommandsListProps = {
     count: number;
@@ -14,10 +14,12 @@ function Command(props: CommandProps) {
 
     return (
         <li>
-            <div>{name}</div>
+            <div>{ name }</div>
             <label>Название команды <input type="text"
-                                           value={name}
-                                           onChange={(e: ChangeEvent<HTMLInputElement>) => {setName(e.target.value)}}/>
+                                           value={ name }
+                                           onChange={ (e: ChangeEvent<HTMLInputElement>) => {
+                                               setName(e.target.value)
+                                           } }/>
             </label>
             <label>Очки команды <input type="number" min="0"/></label>
         </li>
@@ -27,10 +29,10 @@ function Command(props: CommandProps) {
 function CommandsList(props: CommandsListProps) {
     const commands = Array.from({length: props.count}, () => null);
     const commandsItems = commands.map((number: any, index: number) =>
-        <Command name={`Команда  ${index + 1}`} key={index}/>
+        <Command name={ `Команда  ${ index + 1 }` } key={ index }/>
     );
     return (
-        <ul>{commandsItems}</ul>
+        <ul>{ commandsItems }</ul>
     );
 }
 
@@ -40,11 +42,19 @@ export function Admin() {
     return (
         <div>
             <h2>Настройки текущей игры</h2>
-            <CommandsList count={3}/>
+            <CommandsList count={ 3 }/>
             <button onClick={ () => {
                 nextActiveQuest(index);
                 index++;
             } }>Следующий вопрос
+            </button>
+            <button onClick={ () => {
+                toggleAnswer(true);
+            } }>Показать ответ
+            </button>
+            <button onClick={ () => {
+                toggleAnswer(false);
+            } }>Скрыть ответ
             </button>
         </div>
     );
