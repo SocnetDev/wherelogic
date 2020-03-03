@@ -39,13 +39,17 @@ export function clearAnswers() {
     });
 }
 
-export function nextActiveQuest(id: number): void {
-    getAllQuests().then((docs) => {
-        if (docs[id]) {
-            activeDoc.set({
-                ...docs[id].data()
-            });
-        }
+export function nextActiveQuest(id: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+        getAllQuests().then((docs) => {
+            if (docs[id]) {
+                resolve(activeDoc.set({
+                    ...docs[id].data()
+                }));
+            } else {
+                reject();
+            }
+        });
     });
 }
 
