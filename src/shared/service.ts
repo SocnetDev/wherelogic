@@ -1,5 +1,8 @@
 import {quests, storage, firestore} from "../firebase";
 import {Subject} from 'rxjs';
+import * as firebase from 'firebase';
+
+const FieldValue = firebase.firestore.FieldValue;
 
 const activeDoc = firestore.collection('active').doc('quest');
 const teamCollection = firestore.collection('teams');
@@ -28,9 +31,9 @@ export function getCurrentQuest(): Subject<any> {
 }
 
 export function addAnswer(commandName: string = 'TestName'): void {
-    activeDoc.set({
-        answers: [{name: commandName, time: new Date().toLocaleTimeString()}]
-    }, {merge: true});
+    activeDoc.update({
+        answers: FieldValue.arrayUnion({name: commandName, time: new Date().toLocaleTimeString()})
+    });
 }
 
 export function clearAnswers() {
