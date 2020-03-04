@@ -3,13 +3,39 @@
 }
 
 .ps-NameBlock {
+   display: -webkit-box;
+   display: -ms-flexbox;
    display: flex;
+   -webkit-box-pack: center;
+   -ms-flex-pack: center;
+   justify-content: center;
+}
+
+.ps-Base__wrapper {
+   display: -webkit-box;
+   display: -ms-flexbox;
+   display: flex;
+   -webkit-box-orient: vertical;
+   -webkit-box-direction: normal;
+   -ms-flex-direction: column;
+   flex-direction: column;
+   -webkit-box-align: center;
+   -ms-flex-align: center;
+   align-items: center;
 }
 
 .ps-NameBlock__name {
    font-size: 20px;
    font-weight: bold;
    margin-right: 12px;
+}
+
+.ps-NameBlock__name_input {
+   width: 300px;
+}
+
+.ps-Button {
+   margin: 24px;
 }
 
 .ps-Button_selected {

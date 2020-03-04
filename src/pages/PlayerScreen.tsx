@@ -7,6 +7,7 @@ export function PlayerScreen() {
     const [name, setName] = useState<any>('');
     const [answered, setAnswered] = useState<boolean>(false);
     const [nameEdit, setNameEdit] = useState<boolean>(true);
+    const [curQuest, setCurQuest] = useState<number>(0);
     let quest: number = 0;
 
 
@@ -15,6 +16,7 @@ export function PlayerScreen() {
             if (res.id !== quest) {
                 quest = res.id;
                 setAnswered(false);
+                setCurQuest(quest);
             }
         });
         return () => {
@@ -36,7 +38,7 @@ export function PlayerScreen() {
     }
 
     function answer() {
-        if (!answered) {
+        if (!answered && curQuest) {
             setAnswered(true);
             addAnswer(name);
         }
@@ -48,22 +50,23 @@ export function PlayerScreen() {
     // Перед кнопкой надо запросить ввести имя команды
     return <div className='ps-Base'>
         {nameEdit ?
-            <div>
+            <div className='ps-NameBlock'>
                 <input type="text"
-                       className='ps-NameBlock__name'
+                       className='ps-NameBlock__name ps-NameBlock__name_input'
                        value={name}
+                       placeholder="Введите название команды"
                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
                            setName(e.target.value)
                        }}/>
-                <button onClick={() => createOrUpdate()}>Создать/обновить команду</button>
+                <button onClick={() => createOrUpdate()}>{team ? 'Обновить' : 'Создать'} команду</button>
             </div>
             :
-            <div>
+            <div className='ps-Base__wrapper'>
                 <div className='ps-NameBlock'>
                     <div className='ps-NameBlock__name'>{name}</div>
                     <button onClick={() => setNameEdit(true)}>Отредактировать имя</button>
                 </div>
-                <img src='./button.svg' alt='press me' className={answered ? 'ps-Button_selected' : ''}
+                <img src='./button.svg' alt='press me' className={'ps-Button ' + (answered || !curQuest ? 'ps-Button_selected' : '')}
                      onClick={() => answer()}/>
             </div>
         }
