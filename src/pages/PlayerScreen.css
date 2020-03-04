@@ -1,0 +1,17 @@
+.ps-Base {
+   padding: 24px;
+}
+
+.ps-NameBlock {
+   display: flex;
+}
+
+.ps-NameBlock__name {
+   font-size: 20px;
+   font-weight: bold;
+   margin-right: 12px;
+}
+
+.ps-Button_selected {
+   opacity: 0.2;
+}
