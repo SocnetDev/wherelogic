@@ -28,9 +28,9 @@ export function getCurrentQuest(): Subject<any> {
 }
 
 export function addAnswer(commandName: string = 'TestName'): void {
-    activeDoc.update({
-        answers: [...currentQuest.data().answers, {name: commandName, time: new Date().toLocaleTimeString()}]
-    });
+    activeDoc.set({
+        answers: [{name: commandName, time: new Date().toLocaleTimeString()}]
+    }, {merge: true});
 }
 
 export function clearAnswers() {
