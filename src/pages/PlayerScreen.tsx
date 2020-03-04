@@ -1,35 +1,71 @@
-import React, {useState} from "react";
-import {createTeam, updateTeam, removeAllTeam, changeScore} from "../shared/service";
+import React, {useState, ChangeEvent, useEffect} from "react";
+import {createTeam, updateTeam, getCurrentQuest, addAnswer} from "../shared/service";
+import './PlayerScreen.css';
 
 export function PlayerScreen() {
     const [team, setTeam] = useState<string>('');
+    const [name, setName] = useState<any>('');
+    const [answered, setAnswered] = useState<boolean>(false);
+    const [nameEdit, setNameEdit] = useState<boolean>(true);
+    let quest: number = 0;
+
+
+    useEffect(() => {
+        const sub = getCurrentQuest().subscribe((res) => {
+            if (res.id !== quest) {
+                quest = res.id;
+                setAnswered(false);
+            }
+        });
+        return () => {
+            sub.unsubscribe();
+        }
+    }, []);
 
     function createOrUpdate() {
-        if (team) {
-            updateTeam(team, 'UpdateName')
-        } else {
-            createTeam('NewTeam').then((team) => {
-                setTeam(team.id);
-            });
+        if (name) {
+            if (team) {
+                updateTeam(team, name)
+            } else {
+                createTeam(name).then((team) => {
+                    setTeam(team.id);
+                });
+            }
+            setNameEdit(false);
         }
     }
 
-    function removeTeam() {
-        removeAllTeam();
-    }
-
-    function getMeScore() {
-        changeScore(team, 3);
+    function answer() {
+        if (!answered) {
+            setAnswered(true);
+            addAnswer(name);
+        }
     }
 
     // Тут короче то что видит игрок, а именно большую кнопку)
     // По ней для простоты будем в ФБ записывать имя команды и время и показывать на экране список формата
     // КОМАНДА А - 10:04:55
     // Перед кнопкой надо запросить ввести имя команды
-    return <div>
-        <h2>PlayerScreen</h2>
-        <button onClick={ () => createOrUpdate() }>Создать/обновить команду</button>
-        <button onClick={ () => removeTeam() }>Удалить команду</button>
-        <button onClick={ () => getMeScore() }>Добавить мне </button>
+    return <div className='ps-Base'>
+        {nameEdit ?
+            <div>
+                <input type="text"
+                       className='ps-NameBlock__name'
+                       value={name}
+                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                           setName(e.target.value)
+                       }}/>
+                <button onClick={() => createOrUpdate()}>Создать/обновить команду</button>
+            </div>
+            :
+            <div>
+                <div className='ps-NameBlock'>
+                    <div className='ps-NameBlock__name'>{name}</div>
+                    <button onClick={() => setNameEdit(true)}>Отредактировать имя</button>
+                </div>
+                <img src='./button.svg' alt='press me' className={answered ? 'ps-Button_selected' : ''}
+                     onClick={() => answer()}/>
+            </div>
+        }
     </div>;
 }
