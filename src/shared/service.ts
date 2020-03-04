@@ -47,6 +47,9 @@ export function nextActiveQuest(id: number): Promise<any> {
                     ...docs[id].data()
                 }));
             } else {
+                activeDoc.update({
+                    gameOver: true
+                });
                 reject();
             }
         });
