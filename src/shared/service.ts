@@ -67,17 +67,20 @@ export function updateTeam(team: string, name: string) {
     teamCollection.doc(team).update({name});
 }
 
-export function changeScore(team: string, score: number) {
+export function changeScore(team: string, score: number = 0) {
     const curTeam = teamCollection.doc(team);
     curTeam.get().then((team) => {
-        const oldScore = team.data()?.score || 0;
-        curTeam.update({score: oldScore + score});
+        curTeam.update({score: score});
     });
 }
 
 export function getTeamObserver(): Subject<any> {
     teamCollection.onSnapshot((teams) => {
-        team$.next(teams.docs.map(team => team.data()));
+        team$.next(teams.docs.map(team => {
+            const data = team.data();
+            data.id = team.id;
+            return data;
+        }));
     });
     return team$;
 }

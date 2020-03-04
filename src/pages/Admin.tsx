@@ -1,21 +1,23 @@
 import React, {useState, useEffect} from "react";
-import {nextActiveQuest, toggleAnswer, getCurrentQuest} from "../shared/service";
+import {nextActiveQuest, toggleAnswer, getCurrentQuest, getTeamObserver, changeScore} from "../shared/service";
 
 type CommandsListProps = {
-    count: number;
+    items: [];
 }
 
 type CommandProps = {
+    id: string;
     name: string;
-    points?: number;
+    score: number;
 }
 
 function Command(props: CommandProps) {
-    const [points, setPoints] = useState<any>(props.points || 0);
+    const [score, setScore] = useState<any>(props.score || 0);
 
-    const changePoints = (points: number) => {
-       if (points >= 0) {
-           setPoints(points);
+    const change = (score: number) => {
+       if (score >= 0) {
+           setScore(score);
+           changeScore(props.id, score);
        }
     };
 
@@ -24,18 +26,18 @@ function Command(props: CommandProps) {
             <div>{ props.name }</div>
             <div>
                 Очки команды:
-                <strong>{points}</strong>
-                <button onClick={ () => {const i = points + 1; changePoints(i);} }>+</button>
-                <button onClick={ () => {const i = points - 1; changePoints(i);} }>-</button>
+                <strong>{score}</strong>
+                <button onClick={ () => {const i = score + 1; change(i);} }>+</button>
+                <button onClick={ () => {const i = score - 1; change(i);} }>-</button>
             </div>
         </li>
     );
 }
 
 function CommandsList(props: CommandsListProps) {
-    const commands = Array.from({length: props.count}, () => null);
-    const commandsItems = commands.map((number: any, index: number) =>
-        <Command name={ `Команда  ${ index + 1 }` } key={ index }/>
+    const commands = props.items;
+    const commandsItems = commands.map((team: any, index: number) =>
+        <Command id={team.id} name={team.name} score={team.score} key={ index }/>
     );
     return (
         <ul>{ commandsItems }</ul>
@@ -46,20 +48,27 @@ function CommandsList(props: CommandsListProps) {
 export function Admin() {
     const [quest, setQuest] = useState<any>(null);
     const [questIndex, setQuestIndex] = useState<any>(0);
+    const [commands, setCommands] = useState<any>([]);
 
     useEffect(() => {
         const sub = getCurrentQuest().subscribe((res) => {
             setQuest(res);
         });
+        const teamsSub = getTeamObserver().subscribe((teams) => {
+            setCommands(teams);
+        });
+
         return () => {
             sub.unsubscribe();
+            teamsSub.unsubscribe();
         }
     }, []);
+
 
     return (
         <div>
             <h2>Настройки текущей игры</h2>
-            <CommandsList count={ 3 }/>
+            {commands ? <CommandsList items={ commands }/> : ''}
             <div>Вопрос {questIndex + 1}:</div>
             {quest ? <strong>{quest.type}</strong>: ''}
             <div>Правильный ответ:</div>
