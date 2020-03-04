@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from "react";
-import {getCurrentQuest, getTeamObserver} from '../shared/service';
+import React, { useEffect, useState } from "react";
+import { getCurrentQuest, getTeamObserver } from '../shared/service';
+import './Game.css';
 
 /*
 * Основной экран который видят игроки на проекторе
@@ -12,6 +13,38 @@ function getLoader(): any {
     return <div>Загрузка...</div>;
 }
 
+function getTable(teams: any[]) {
+    return teams ? teams.map((team: any, key: number) => <div
+        key={key}>{team.name} - {team.score} баллов</div>) : <div>Команд нет =(</div>;
+}
+
+function getGame(quest: any, teams: any[]) {
+    return <div className="quest">
+        {quest.showAnswer ? <div className="quest-answer">
+            <div>Правильный ответ: {quest.rightAnswer}</div>
+            <div>{quest.answerImg ? <img src={quest.answerImg} width="400px" alt="answer" style={{ marginTop: '12px' }} /> : <></>}</div>
+        </div> : <></>}
+        <div className="quest-game flex-column-center">
+            <div className="quest-game-images">
+                {
+                    quest.images.map((elem: string, key: number) =>
+                        <div className="quest-game-image"><img src={elem} alt={'Quest'} key={key} /></div>
+                    )
+                }
+            </div>
+        </div>
+        <div className='quest-answers flex-column-center'>
+            <h2>Порядок ответов:</h2>
+            {quest.answers?.map((el: any, key: number) => <div
+                key={key}>{el.name + ' ' + el.time}</div>)}
+        </div>
+        <div className="quest-score flex-column-center">
+            <h2>Результаты:</h2>
+            {getTable(teams)}
+        </div>
+    </div>
+}
+
 export function Game() {
     const [quest, setQuest] = useState<any>(null);
     const [teams, setTeams] = useState<any>(null);
@@ -21,7 +54,7 @@ export function Game() {
             setQuest(res);
         });
         const teamSub = getTeamObserver().subscribe((teams) => {
-            setTeams(teams)
+            setTeams(teams.sort((el: any, next: any) => next.score - el.score))
         });
         return () => {
             sub.unsubscribe();
@@ -30,26 +63,6 @@ export function Game() {
     }, []);
 
     return <div>
-        { quest ?
-            <div className="quest">
-                { quest.showAnswer ? <div>
-                    Правильный ответ: { quest.rightAnswer }
-                </div> : <></> }
-                <div className="quest-game flex-column-center">
-                    <h1>{ quest.text || 'Где логика?' }</h1>
-                    <div className="quest-game-images">{ quest.images.map((elem: string, key: number) => <img
-                        src={ elem } alt={ 'Quest' }
-                        key={ key }/>) }</div>
-                </div>
-                <div className='quest-answers flex-column-center'>
-                    <h2>Порядок ответов:</h2>
-                    { quest.answers?.map((el: any, key: number) => <div
-                        key={ key }>{ el.name + ' ' + el.time }</div>) }
-                </div>
-            </div>
-            : getLoader()
-        }
-        { teams ? teams.map((team: any, key: number) => <div
-            key={ key }>{ team.name } - { team.score } баллов</div>) : <></> }
+        {quest ? getGame(quest, teams) : getLoader()}
     </div>;
 }

@@ -1,0 +1,55 @@
+.quest {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.quest-answers {
+    position: fixed;
+    right: 60px;
+    bottom: 60px;
+    height: 300px;
+    overflow: hidden;
+}
+
+.quest-score {
+    position: fixed;
+    left: 60px;
+    bottom: 60px;
+    height: 300px;
+    overflow: hidden;
+}
+
+.quest-answers div,
+.quest-score div {
+    border-top: 1px solid #eaeaea;
+    padding-top: 6px;
+    margin-bottom: 6px;
+}
+
+.quest-game-images {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.quest-game-image {
+    width: 50%;
+}
+
+.quest-game-image img {
+    width: 1000px;
+}
+
+.quest-game-image:last-child {
+    width: 100%;
+}
+
+.quest-answer {
+    position: fixed;
+    background: #03A9F4;
+    padding: 2rem;
+    font-size: 32px;
+    border-radius: 12px;
+}

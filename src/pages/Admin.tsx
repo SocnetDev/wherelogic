@@ -61,7 +61,7 @@ export function Admin() {
             <h2>Настройки текущей игры</h2>
             <CommandsList count={ 3 }/>
             <div>Вопрос {questIndex + 1}:</div>
-            {quest ? <strong>{quest.text}</strong>: ''}
+            {quest ? <strong>{quest.type}</strong>: ''}
             <div>Правильный ответ:</div>
             {quest ? <strong>{quest.rightAnswer}</strong>: ''}
             <div>
@@ -79,6 +79,12 @@ export function Admin() {
                 <button onClick={ () => {
                     toggleAnswer(false);
                 } }>Скрыть ответ
+                </button>
+                <button onClick={ () => {
+                    nextActiveQuest(0).then(() => {
+                        setQuestIndex(0);
+                    });
+                } }>Начать с начала
                 </button>
             </div>
         </div>
