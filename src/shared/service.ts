@@ -6,9 +6,12 @@ const FieldValue = firebase.firestore.FieldValue;
 
 const activeDoc = firestore.collection('active').doc('quest');
 const teamCollection = firestore.collection('teams');
+const answerCollection = firestore.collection('answers');
 let unsubscribe: Function;
+let unsubscribeA: Function;
 const res = new Subject<any>();
 const team$ = new Subject<any>();
+const answers$ = new Subject<any>();
 let currentQuest: any;
 let allQuests: any[];
 
@@ -31,24 +34,40 @@ export function getCurrentQuest(): Subject<any> {
 }
 
 export function addAnswer(commandName: string = 'TestName'): void {
-    activeDoc.update({
-        answers: FieldValue.arrayUnion({name: commandName, time: new Date().toLocaleTimeString()})
-    });
+    answerCollection.add({name: commandName, time: new Date().toLocaleTimeString()})
 }
 
-export function clearAnswers() {
-    activeDoc.update({
-        answers: []
+export function answersObservable(): Subject<any> {
+    if (unsubscribeA) {
+        unsubscribeA();
+    }
+    unsubscribeA = answerCollection.onSnapshot((answers) => {
+        answers$.next(answers.docs.map(answer => {
+            const data = answer.data();
+            data.id = answer.id;
+            return data;
+        }));
     });
+    return answers$;
+}
+
+export function clearAnswers(): Promise<any> {
+    return Promise.resolve(answerCollection.get().then(({docs}) => {
+        docs.forEach((answer) => {
+            return answerCollection.doc(answer.id).delete();
+        });
+    }))
 }
 
 export function nextActiveQuest(id: number): Promise<any> {
     return new Promise((resolve, reject) => {
         getAllQuests().then((docs) => {
             if (docs[id]) {
-                resolve(activeDoc.set({
-                    ...docs[id].data()
-                }));
+                clearAnswers().then(() => {
+                    resolve(activeDoc.set({
+                        ...docs[id].data()
+                    }));
+                });
             } else {
                 activeDoc.update({
                     gameOver: true

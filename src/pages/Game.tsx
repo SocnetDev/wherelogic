@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {getCurrentQuest, getTeamObserver} from '../shared/service';
+import {answersObservable, getCurrentQuest, getTeamObserver} from '../shared/service';
 import './Game.css';
 
 /*
@@ -18,7 +18,7 @@ function getTable(teams: any[]) {
         key={ key }>{ team.name } - { team.score } баллов</div>) : <div>Команд нет =(</div>;
 }
 
-function getGame(quest: any, teams: any[]) {
+function getGame(quest: any, teams: any[], answers: any[]) {
     return quest.gameOver ? <div className="quest-gameOver">
         <h1>С праздником милые дамы!</h1>
         <h2>Результаты:</h2>
@@ -40,7 +40,7 @@ function getGame(quest: any, teams: any[]) {
         </div>
         <div className='quest-answers flex-column-center'>
             <h2>Порядок ответов:</h2>
-            { quest.answers?.map((el: any, key: number) => <div
+            { answers?.map((el: any, key: number) => <div
                 key={ key }>{ el.name + ' ' + el.time }</div>) }
         </div>
         <div className="quest-score flex-column-center">
@@ -53,6 +53,7 @@ function getGame(quest: any, teams: any[]) {
 export function Game() {
     const [quest, setQuest] = useState<any>(null);
     const [teams, setTeams] = useState<any>(null);
+    const [answers, setAnswers] = useState<any>(null);
 
     useEffect(() => {
         const sub = getCurrentQuest().subscribe((res) => {
@@ -61,13 +62,17 @@ export function Game() {
         const teamSub = getTeamObserver().subscribe((teams) => {
             setTeams(teams.sort((el: any, next: any) => next.score - el.score))
         });
+        const answersSub = answersObservable().subscribe((answers) => {
+            setAnswers(answers);
+        });
         return () => {
             sub.unsubscribe();
             teamSub.unsubscribe();
+            answersSub.unsubscribe();
         }
     }, []);
 
     return <div>
-        { quest ? getGame(quest, teams) : getLoader() }
+        { quest ? getGame(quest, teams, answers) : getLoader() }
     </div>;
 }
