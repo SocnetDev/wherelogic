@@ -13,19 +13,16 @@ export function PlayerScreen() {
     const [name, setName] = useState<any>('');
     const [answered, setAnswered] = useState<boolean>(false);
     const [nameEdit, setNameEdit] = useState<boolean>(true);
-    const [curQuest, setCurQuest] = useState<any>();
-    let quest: any;
+    let quest: number;
 
     //mount/unmount
     useEffect(() => {
         const sub = getCurrentQuest().subscribe((res) => {
-            if (!quest || res.id !== quest.id) {
-                quest = res;
-                setAnswered(false);
-                setCurQuest(quest);
-
-                //TODO: расширить запись ответа на id команды и проверять на наличие ответа
-
+            if (res.id !== quest) {
+                if (quest) {
+                    setAnswered(false);
+                }
+                quest = res.id;
             }
         });
         return () => {
@@ -37,9 +34,11 @@ export function PlayerScreen() {
         const query = new URLSearchParams(location.search);
         const teamId = query.get('team');
         const name = query.get('name');
+        const answered = query.get('answered') === 'true';
         if (teamId && name) {
             setTeam(teamId);
             setName(name);
+            setAnswered(answered);
             setNameEdit(false);
         }
     }, [location.search]);
@@ -48,14 +47,10 @@ export function PlayerScreen() {
         if (name) {
             if (team) {
                 updateTeam(team, name);
-                const search = new URLSearchParams({name, team});
-                location.search = search.toString();
-                history.replace(location);
+                updateLocation({name})
             } else {
                 createTeam(name).then((teamData) => {
-                    const search = new URLSearchParams({name, team: teamData.id});
-                    location.search = search.toString();
-                    history.replace(location);
+                    updateLocation({team: teamData.id})
                 });
             }
             setNameEdit(false);
@@ -63,10 +58,18 @@ export function PlayerScreen() {
     }
 
     function answer() {
-        if (!answered && curQuest) {
+        if (!answered) {
             setAnswered(true);
             addAnswer(name);
+            updateLocation({answered: true})
         }
+    }
+
+    function updateLocation(searchParams: any) {
+        const defaultParams = {name, team, answered};
+        const search = new URLSearchParams({...defaultParams, ...searchParams});
+        location.search = search.toString();
+        history.replace(location);
     }
 
     // Тут короче то что видит игрок, а именно большую кнопку)
@@ -92,7 +95,7 @@ export function PlayerScreen() {
                     <button onClick={() => setNameEdit(true)}>Отредактировать имя</button>
                 </div>
                 <img src='./button.svg' alt='press me'
-                     className={'ps-Button ' + (answered || !curQuest ? 'ps-Button_selected' : '')}
+                     className={'ps-Button ' + (answered ? 'ps-Button_selected' : '')}
                      onClick={() => answer()}/>
             </div>
         }
