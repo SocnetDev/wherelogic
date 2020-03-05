@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
-import {nextActiveQuest, toggleAnswer, getCurrentQuest, getTeamObserver, changeScore} from "../shared/service";
+import {nextActiveQuest, toggleAnswer, getCurrentQuest, getTeamObserver, changeScore, removeAllTeam} from "../shared/service";
+import './Admin.css';
 
 type CommandsListProps = {
     items: [];
@@ -23,12 +24,11 @@ function Command(props: CommandProps) {
 
     return (
         <li>
-            <div>{ props.name }</div>
+            <div className="command-name">{ props.name }</div>
             <div>
-                Очки команды:
-                <strong>{score}</strong>
-                <button onClick={ () => {const i = score + 1; change(i);} }>+</button>
-                <button onClick={ () => {const i = score - 1; change(i);} }>-</button>
+                <i className="small-text">Баллы:</i>&nbsp;<strong>{score}</strong>
+                <button className="small-button button-green" onClick={ () => {const i = score + 1; change(i);} }>+</button>
+                <button className="small-button button-red" onClick={ () => {const i = score - 1; change(i);} }>-</button>
             </div>
         </li>
     );
@@ -66,13 +66,16 @@ export function Admin() {
 
 
     return (
-        <div>
+        <div className="admin-screen">
             <h2>Настройки текущей игры</h2>
-            {commands ? <CommandsList items={ commands }/> : ''}
-            <div>Вопрос {questIndex + 1}:</div>
-            {quest ? <strong>{quest.type}</strong>: ''}
-            <div>Правильный ответ:</div>
-            {quest ? <strong>{quest.rightAnswer}</strong>: ''}
+
+            {quest ? (
+                <blockquote>
+                    <div><i>Вопрос {questIndex + 1}:</i>&nbsp;<strong>{quest.type}</strong></div>
+                    <div><i>Правильный ответ:</i>&nbsp;<strong>{quest.rightAnswer}</strong></div>
+                </blockquote>
+            ) : ''}
+
             <div>
                 <button onClick={ () => {
                     let index = questIndex;
@@ -95,7 +98,15 @@ export function Admin() {
                     });
                 } }>Начать с начала
                 </button>
+                <button className="button-red" onClick={ () => {
+                    removeAllTeam();
+                } }>Удалить все команды
+                </button>
             </div>
+
+            <h4>Команды</h4>
+            {commands ? <CommandsList items={ commands }/> : ''}
+
         </div>
     );
 }

@@ -1,0 +1,50 @@
+.admin-screen h2,
+.admin-screen h4 {
+    margin-left: 12px;
+}
+
+.admin-screen ul {
+    list-style-type: none;
+}
+
+.admin-screen li {
+    margin-bottom: 8px;
+}
+
+.admin-screen .command-name {
+    font-size: 18px;
+    color: cadetblue;
+}
+
+.admin-screen .small-text {
+    font-size: 13px;
+}
+
+.admin-screen button {
+    background-color: #e7e7e7;
+    color: black;
+    border: none;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-left: 12px;
+    cursor: pointer;
+}
+
+.admin-screen .button-red {
+    background-color: #f44336;
+    color: white;
+}
+
+.admin-screen .button-green {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.admin-screen .small-button {
+    padding: 0;
+    width: 20px;
+    height: 20px;
+}
