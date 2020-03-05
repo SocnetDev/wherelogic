@@ -1,22 +1,31 @@
 import React, {useState, ChangeEvent, useEffect} from "react";
 import {createTeam, updateTeam, getCurrentQuest, addAnswer} from "../shared/service";
+import {
+    useLocation,
+    useHistory
+} from "react-router-dom";
 import './PlayerScreen.css';
 
 export function PlayerScreen() {
+    const location = useLocation();
+    const history = useHistory();
     const [team, setTeam] = useState<string>('');
     const [name, setName] = useState<any>('');
     const [answered, setAnswered] = useState<boolean>(false);
     const [nameEdit, setNameEdit] = useState<boolean>(true);
-    const [curQuest, setCurQuest] = useState<number>(0);
-    let quest: number = 0;
+    const [curQuest, setCurQuest] = useState<any>();
+    let quest: any;
 
-
+    //mount/unmount
     useEffect(() => {
         const sub = getCurrentQuest().subscribe((res) => {
-            if (res.id !== quest) {
-                quest = res.id;
+            if (!quest || res.id !== quest.id) {
+                quest = res;
                 setAnswered(false);
                 setCurQuest(quest);
+
+                //TODO: расширить запись ответа на id команды и проверять на наличие ответа
+
             }
         });
         return () => {
@@ -24,13 +33,29 @@ export function PlayerScreen() {
         }
     }, []);
 
+    useEffect(() => {
+        const query = new URLSearchParams(location.search);
+        const teamId = query.get('team');
+        const name = query.get('name');
+        if (teamId && name) {
+            setTeam(teamId);
+            setName(name);
+            setNameEdit(false);
+        }
+    }, [location.search]);
+
     function createOrUpdate() {
         if (name) {
             if (team) {
-                updateTeam(team, name)
+                updateTeam(team, name);
+                const search = new URLSearchParams({name, team});
+                location.search = search.toString();
+                history.replace(location);
             } else {
-                createTeam(name).then((team) => {
-                    setTeam(team.id);
+                createTeam(name).then((teamData) => {
+                    const search = new URLSearchParams({name, team: teamData.id});
+                    location.search = search.toString();
+                    history.replace(location);
                 });
             }
             setNameEdit(false);
@@ -66,7 +91,8 @@ export function PlayerScreen() {
                     <div className='ps-NameBlock__name'>{name}</div>
                     <button onClick={() => setNameEdit(true)}>Отредактировать имя</button>
                 </div>
-                <img src='./button.svg' alt='press me' className={'ps-Button ' + (answered || !curQuest ? 'ps-Button_selected' : '')}
+                <img src='./button.svg' alt='press me'
+                     className={'ps-Button ' + (answered || !curQuest ? 'ps-Button_selected' : '')}
                      onClick={() => answer()}/>
             </div>
         }
