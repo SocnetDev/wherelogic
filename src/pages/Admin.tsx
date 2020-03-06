@@ -27,8 +27,8 @@ function Command(props: CommandProps) {
             <div className="command-name">{ props.name }</div>
             <div>
                 <i className="small-text">Баллы:</i>&nbsp;<strong>{score}</strong>
-                <button className="small-button button-green" onClick={ () => {const i = score + 1; change(i);} }>+</button>
-                <button className="small-button button-red" onClick={ () => {const i = score - 1; change(i);} }>-</button>
+                <button className="medium-button button-green" onClick={ () => {const i = score + 1; change(i);} }>+</button>
+                <button className="medium-button button-red" onClick={ () => {const i = score - 1; change(i);} }>-</button>
             </div>
         </li>
     );
